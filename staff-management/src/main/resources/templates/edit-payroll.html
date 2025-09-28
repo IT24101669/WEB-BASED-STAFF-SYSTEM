@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Edit</title></head>
+<body>
+<h1>Edit Payroll</h1>
+<form th:action="@{/payroll/edit/{id}(id=${payroll.payrollId})}" th:object="${payroll}" method="post">
+    Employee ID: <input type="text" th:field="*{employeeId}" required/><br/>
+    Basic Salary: <input type="number" th:field="*{basicSalary}" step="0.01" required/><br/>
+    Allowances: <input type="number" th:field="*{allowances}" step="0.01" required/><br/>
+    Deductions: <input type="number" th:field="*{deductions}" step="0.01" required/><br/>
+    Pay Date: <input type="date" th:field="*{payDate}"/><br/>
+    <button type="submit">Update</button>
+</form>
+<a href="/payroll">Back</a>
+</body>
+</html>
+

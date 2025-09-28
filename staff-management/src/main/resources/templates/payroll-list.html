@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payroll List</title>
+</head>
+<body>
+<h1>Payroll Records</h1>
+<a href="/payroll/add">Add Payroll</a>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Employee ID</th>
+        <th>Basic Salary</th>
+        <th>Allowances</th>
+        <th>Deductions</th>
+        <th>Net Salary</th>
+        <th>Pay Date</th>
+        <th>Actions</th>
+    </tr>
+    <tr th:each="p : ${payrolls}">
+        <td th:text="${p.payrollId}"></td>
+        <td th:text="${p.employeeId}"></td>
+        <td th:text="${p.basicSalary}"></td>
+        <td th:text="${p.allowances}"></td>
+        <td th:text="${p.deductions}"></td>
+        <td th:text="${p.netSalary}"></td>
+        <td th:text="${p.payDate}"></td>
+        <td>
+            <a th:href="@{/payroll/edit/{id}(id=${p.payrollId})}">Edit</a> |
+            <a th:href="@{/payroll/delete/{id}(id=${p.payrollId})}">Delete</a>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
