@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-container { margin-bottom: 20px; }
+        #departmentForm { display: flex; flex-direction: column; gap: 10px; max-width: 300px; }
+        #departmentTable { border-collapse: collapse; width: 100%; }
+        #departmentTable th, #departmentTable td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        #departmentTable th { background-color: #f2f2f2; }
+        .error { color: red; }
+        button { padding: 5px 10px; cursor: pointer; }
+        button:hover { background-color: #ddd; }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h2>Manage Department</h2>
+    <form id="departmentForm">
+        <input type="hidden" id="departmentIdHidden" name="id">
+        <label for="departmentId">Department ID:</label>
+        <input type="text" id="departmentId" name="departmentId" required>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description">
+        <button type="submit">Save</button>
+        <button type="button" id="clearForm">Clear</button>
+    </form>
+    <div id="errorMessage" class="error"></div>
+</div>
+
+<div>
+    <h2>Department List</h2>
+    <table id="departmentTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Department ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="departmentTableBody"></tbody>
+    </table>
+</div>
+
+<script>
+    const apiUrl = 'http://localhost:8080/api/departments';
+
+    // Load departments on page load
+    window.onload = loadDepartments;
+
+    // Load departments
+    async function loadDepartments() {
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error('Failed to fetch departments');
+            const departments = await response.json();
+            displayDepartments(departments);
+        } catch (error) {
+            document.getElementById('errorMessage').textContent = error.message;
+        }
+    }
+
+    // Display departments in table
+    function displayDepartments(departments) {
+        const tbody = document.getElementById('departmentTableBody');
+        tbody.innerHTML = '';
+        departments.forEach(dept => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                    <td>${dept.id}</td>
+                    <td>${dept.departmentId}</td>
+                    <td>${dept.name}</td>
+                    <td>${dept.description || ''}</td>
+                    <td>
+                        <button onclick="editDepartment('${dept.id}')">Edit</button>
+                        <button onclick="deleteDepartment('${dept.id}')">Delete</button>
+                    </td>
+                `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Handle form submission
+    document.getElementById('departmentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('departmentIdHidden').value;
+        const department = {
+            id: id || '',
+            departmentId: document.getElementById('departmentId').value,
+            name: document.getElementById('name').value,
+            description: document.getElementById('description').value
+        };
+
+        try {
+            const url = id ? `${apiUrl}/${id}` : apiUrl;
+            const method = id ? 'PUT' : 'POST';
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(department)
+            });
+            if (!response.ok) throw new Error(`Failed to ${id ? 'update' : 'create'} department`);
+            loadDepartments();
+            clearForm();
+        } catch (error) {
+            document.getElementById('errorMessage').textContent = error.message;
+        }
+    });
+
+    // Edit department
+    function editDepartment(id) {
+        fetch(`${apiUrl}/${id}`) // Adjust endpoint if needed
+            .then(response => response.json())
+            .then(department => {
+                document.getElementById('departmentIdHidden').value = department.id;
+                document.getElementById('departmentId').value = department.departmentId;
+                document.getElementById('name').value = department.name;
+                document.getElementById('description').value = department.description || '';
+            })
+            .catch(error => {
+                document.getElementById('errorMessage').textContent = error.message;
+            });
+    }
+
+    // Delete department
+    async function deleteDepartment(id) {
+        if (confirm('Are you sure you want to delete this department?')) {
+            try {
+                const response = await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Failed to delete department');
+                loadDepartments();
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = error.message;
+            }
+        }
+    }
+
+    // Clear form
+    document.getElementById('clearForm').addEventListener('click', clearForm);
+
+    function clearForm() {
+        document.getElementById('departmentIdHidden').value = '';
+        document.getElementById('departmentId').value = '';
+        document.getElementById('name').value = '';
+        document.getElementById('description').value = '';
+        document.getElementById('errorMessage').textContent = '';
+    }
+</script>
+</body>
+</html>

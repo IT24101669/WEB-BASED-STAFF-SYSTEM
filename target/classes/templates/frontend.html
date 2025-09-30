@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Department Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #f0f0f0; }
+        input, button { margin: 5px; }
+    </style>
+</head>
+<body>
+<h1>Department Management</h1>
+<h2>Add Department</h2>
+<form id="addForm">
+    <input type="text" id="name" placeholder="Name" required>
+    <input type="text" id="description" placeholder="Description" required>
+    <input type="text" id="head" placeholder="Head">
+    <button type="submit">Add</button>
+</form>
+<h2>Departments</h2>
+<table id="deptTable">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Head</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Departments will be listed here -->
+    </tbody>
+</table>
+<script>
+    const api = "http://localhost:8080/departments";
+
+    function fetchDepartments() {
+        fetch(api)
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.querySelector("#deptTable tbody");
+                tbody.innerHTML = "";
+                data.forEach(dept => {
+                    tbody.innerHTML += `
+                            <tr>
+                                <td>${dept.id}</td>
+                                <td><input value="${dept.name}" id="name-${dept.id}"></td>
+                                <td><input value="${dept.description}" id="desc-${dept.id}"></td>
+                                <td><input value="${dept.head}" id="head-${dept.id}"></td>
+                                <td>
+                                    <button onclick="updateDepartment(${dept.id})">Update</button>
+                                    <button onclick="deleteDepartment(${dept.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                });
+            });
+    }
+
+    document.getElementById("addForm").onsubmit = function(e) {
+        e.preventDefault();
+        const name = document.getElementById("name").value;
+        const desc = document.getElementById("description").value;
+        const head = document.getElementById("head").value;
+        fetch(api, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, description: desc, head })
+        }).then(fetchDepartments);
+        this.reset();
+    };
+
+    function updateDepartment(id) {
+        const name = document.getElementById(`name-${id}`).value;
+        const description = document.getElementById(`desc-${id}`).value;
+        const head = document.getElementById(`head-${id}`).value;
+        fetch(`${api}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, description, head })
+        }).then(fetchDepartments);
+    }
+
+    function deleteDepartment(id) {
+        fetch(`${api}/${id}`, { method: "DELETE" })
+            .then(fetchDepartments);
+    }
+
+    fetchDepartments();
+</script>
+</body>
+</html>
