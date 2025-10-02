@@ -15,19 +15,16 @@ public class PositionController {
     @Autowired
     private PositionRepository positionRepository;
 
-    // Get all positions
     @GetMapping
     public List<Position> getAllPositions() {
         return positionRepository.findAll();
     }
 
-    // Create new position
     @PostMapping
     public Position createPosition(@RequestBody Position position) {
         return positionRepository.save(position);
     }
 
-    // Get single position
     @GetMapping("/{id}")
     public ResponseEntity<Position> getPositionById(@PathVariable int id) {
         return positionRepository.findById(id)
@@ -35,7 +32,6 @@ public class PositionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Update position
     @PutMapping("/{id}")
     public ResponseEntity<Position> updatePosition(@PathVariable int id, @RequestBody Position updated) {
         return positionRepository.findById(id)
@@ -53,7 +49,6 @@ public class PositionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Delete position
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePosition(@PathVariable int id) {
         if (positionRepository.existsById(id)) {

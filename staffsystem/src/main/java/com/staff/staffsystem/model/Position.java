@@ -33,7 +33,6 @@ public class Position {
     @Column(nullable = false)
     private String status;
 
-    // Constructors
     public Position() {}
 
     public Position(String title, String code, String department, String level,
@@ -49,7 +48,6 @@ public class Position {
         this.status = status;
     }
 
-    // Getters and setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
