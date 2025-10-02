@@ -1,0 +1,25 @@
+/* Simple styling */
+body {
+    background-color: #f7f9fc;
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+h2, h3 {
+    color: #263544;
+}
+
+.container {
+    margin-top: 20px;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+/* Tables */
+.table th {
+    background-color: #2e3b4e;
+    color: white;
+}

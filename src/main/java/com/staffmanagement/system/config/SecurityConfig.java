@@ -3,23 +3,50 @@ package com.staffmanagement.system.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/attendance/mark", "/api/leave/apply", "/api/leave/balance/**", "/api/leave/history/**").hasRole("EMPLOYEE")
-                        .requestMatchers("/api/attendance/report", "/api/leave/pending", "/api/leave/report", "/api/attendance/{id}", "/api/leave/{id}/status", "/api/leave/{id}").hasRole("HR")
-                        .requestMatchers("/public/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // static files
+                        .requestMatchers("/", "/login").permitAll() // login page open
+                        .requestMatchers("/employee/**").hasRole("EMPLOYEE")
+                        .requestMatchers("/hr/**").hasRole("HR")
                         .anyRequest().authenticated()
                 )
-                .httpBasic();
+                .formLogin(form -> form
+                        .loginPage("/login")        // use your Thymeleaf login.html
+                        .defaultSuccessUrl("/redirect", true) // custom redirect after login
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
+                );
+
         return http.build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails employee = User.withUsername("employee")
+                .password("{noop}password") // plain password for testing
+                .roles("EMPLOYEE")
+                .build();
+
+        UserDetails hr = User.withUsername("hr")
+                .password("{noop}password")
+                .roles("HR")
+                .build();
+
+        return new InMemoryUserDetailsManager(employee, hr);
     }
 }
